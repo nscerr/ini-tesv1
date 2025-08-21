@@ -1,0 +1,119 @@
+<?php
+// Mengaktifkan laporan error untuk debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Set timezone sesuai dengan server/lokasi
+date_default_timezone_set('Asia/Jakarta');
+
+echo "Memulai cron job di domain utama...\n";
+
+// Menghubungkan ke database lokal
+$servername = "localhost";
+$username = "jxylnfet_threads"; 
+$password = "ANJAYANJAy-90"; 
+$dbname = "jxylnfet_ajg";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Koneksi database gagal: " . $conn->connect_error);
+}
+
+// Tentukan URL API dummy yang sekarang berada di server yang sama
+$dummyApiUrl = 'https://xdn.distrubb.web.id/dummy_threads_api.php';
+
+// =======================================================
+// Fungsi untuk memanggil API dan mempublikasikan postingan
+// =======================================================
+function publishPost($postId, $userId, $content, $accessToken, $apiUrl, $conn) {
+    
+    // Ini adalah logika untuk API dummy, bukan API Threads asli
+    $ch = curl_init();
+    
+    $postData = [
+        'access_token' => $accessToken,
+        'text' => $content
+    ];
+    
+    curl_setopt($ch, CURLOPT_URL, $apiUrl);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+    
+    if ($curlError) {
+        $errorMessage = "cURL Error: " . $curlError;
+        echo "Postingan ID " . $postId . " gagal dipublikasikan. Error: " . $errorMessage . "\n";
+        return;
+    }
+    
+    $responseData = json_decode($response, true);
+
+    if ($httpCode == 200) {
+        $threadsPostId = $responseData['id'];
+        
+        $stmt = $conn->prepare("UPDATE scheduled_posts SET status = 'published', published_at = NOW(), threads_post_id = ? WHERE id = ?");
+        $stmt->bind_param("si", $threadsPostId, $postId);
+        $stmt->execute();
+        $stmt->close();
+        
+        echo "Postingan ID " . $postId . " berhasil dipublikasikan ke " . $userId . ".\n";
+    } else {
+        $errorMessage = $responseData['error']['message'] ?? 'Unknown error';
+        $stmt = $conn->prepare("UPDATE scheduled_posts SET status = 'failed', error_message = ? WHERE id = ?");
+        $stmt->bind_param("si", $errorMessage, $postId);
+        $stmt->execute();
+        $stmt->close();
+        
+        echo "Postingan ID " . $postId . " gagal dipublikasikan. Error: " . $errorMessage . "\n";
+    }
+}
+
+// =======================================================
+// Bagian Utama: Cari postingan yang siap dipublikasikan
+// =======================================================
+$stmt = $conn->prepare("SELECT id, post_content FROM scheduled_posts WHERE scheduled_at <= NOW() AND status = 'scheduled' LIMIT 10");
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    while ($post = $result->fetch_assoc()) {
+        $post_id = $post['id'];
+        $post_content = $post['post_content'];
+        
+        $stmtAccounts = $conn->prepare("SELECT ta.access_token, ta.threads_user_id FROM post_accounts pa JOIN threads_accounts ta ON pa.account_id = ta.id WHERE pa.post_id = ?");
+        $stmtAccounts->bind_param("i", $post_id);
+        $stmtAccounts->execute();
+        $resultAccounts = $stmtAccounts->get_result();
+        
+        if ($resultAccounts->num_rows > 0) {
+            $accountsToPublish = $resultAccounts->fetch_all(MYSQLI_ASSOC);
+            shuffle($accountsToPublish);
+            
+            foreach ($accountsToPublish as $account) {
+                // Publikasikan ke setiap akun yang terhubung
+                $userId = $account['threads_user_id'];
+                $accessToken = $account['access_token'];
+                
+                $delay = rand(15, 60);
+                echo "Menunda publikasi untuk " . $userId . " selama " . $delay . " detik...\n";
+                sleep($delay);
+                
+                publishPost($post_id, $userId, $post_content, $accessToken, $dummyApiUrl, $conn);
+            }
+        }
+        $stmtAccounts->close();
+    }
+} else {
+    echo "Tidak ada postingan yang siap dipublikasikan.\n";
+}
+
+$conn->close();
+echo "Cron job selesai.\n";
+?>
