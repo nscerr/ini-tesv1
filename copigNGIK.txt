@@ -1,0 +1,95 @@
+server
+{
+    listen 80;
+    # Jika Anda menggunakan SSL, baris di bawah ini akan diaktifkan oleh aaPanel
+    # listen 443 ssl http2;
+    server_name xdn.videy.my.id;
+    index index.php index.html index.htm;
+    
+    #=======================================================================
+    # --- BAGIAN UTAMA YANG DIPERBAIKI ---
+    #=======================================================================
+
+    # 1. ROOT UTAMA: Mengarah ke direktori web standar Anda di aaPanel.
+    #    Ini untuk file seperti index.php, upload.php, CSS, dan JavaScript.
+    root /www/wwwroot/xdn.videy.my.id;
+
+    # 2. LOKASI VIDEO: Blok khusus untuk menyajikan video dari GDrive.
+    #    Semua URL yang dimulai dengan /files/ akan ditangani di sini.
+    location /files/ {
+        # 'alias' memetakan URL /files/ ke direktori fisik /mnt/gdrive/files/
+        alias /mnt/gdrive/files/;
+
+        # Optimasi penting untuk streaming video (mendukung seeking)
+        mp4;
+        mp4_buffer_size     1M;
+        mp4_max_buffer_size 5M;
+        add_header Accept-Ranges bytes;
+        
+        # Opsi lain untuk performa dan caching
+        sendfile off; # Pilihan aman untuk FUSE mount
+        tcp_nopush on;
+        expires 30d;
+        access_log off;
+    }
+
+    # 3. LOKASI UMUM: Menangani semua permintaan lain (misalnya halaman utama).
+    #    Permintaan akan diarahkan ke file PHP jika file statis tidak ditemukan.
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    #=======================================================================
+    # --- BAGIAN STANDAR DARI AAPANEL (Jangan Diubah) ---
+    #=======================================================================
+
+    #SSL-START SSL related configuration, do NOT delete or modify the next line of commented-out 404 rules
+    #error_page 404/404.html;
+    # TINGGALKAN PENGATURAN SSL DARI AAPANEL DI SINI
+    #SSL-END
+
+    #ERROR-PAGE-START  Error page configuration, allowed to be commented, deleted or modified
+    error_page 404 /404.html;
+    error_page 502 /502.html;
+    #ERROR-PAGE-END
+
+    #PHP-INFO-START  PHP reference configuration, allowed to be commented, deleted or modified
+    include enable-php-82.conf;
+    #PHP-INFO-END
+
+    #REWRITE-START URL rewrite rule reference, any modification will invalidate the rewrite rules set by the panel
+    include /www/server/panel/vhost/rewrite/xdn.videy.my.id.conf;
+    #REWRITE-END
+
+    # Forbidden files or directories
+    location ~ ^/(\.user.ini|\.htaccess|\.git|\.env|\.svn|\.project|LICENSE|README.md)
+    {
+        return 404;
+    }
+
+    # Directory verification related settings for one-click application for SSL certificate
+    location ~ \.well-known{
+        allow all;
+    }
+
+    #Prohibit putting sensitive files in certificate verification directory
+    if ( $uri ~ "^/\.well-known/.*\.(php|jsp|py|js|css|lua|ts|go|zip|tar\.gz|rar|7z|sql|bak)$" ) {
+        return 403;
+    }
+
+    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+    {
+        expires      30d;
+        error_log /dev/null;
+        access_log /dev/null;
+    }
+
+    location ~ .*\.(js|css)?$
+    {
+        expires      12h;
+        error_log /dev/null;
+        access_log /dev/null; 
+    }
+    access_log  /www/wwwlogs/xdn.videy.my.id.log;
+    error_log  /www/wwwlogs/xdn.videy.my.id.error.log;
+}
