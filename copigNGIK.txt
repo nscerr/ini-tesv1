@@ -93,3 +93,7 @@ server
     access_log  /www/wwwlogs/xdn.videy.my.id.log;
     error_log  /www/wwwlogs/xdn.videy.my.id.error.log;
 }
+
+wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+dpkg -i cloudflared-linux-amd64.deb
+
