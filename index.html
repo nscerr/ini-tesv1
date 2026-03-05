@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HYDRATV - Koleksi Viral</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        /* Hide All Scrollbars - Cross Browser */
+        * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        
+        *::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        html::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Hide scrollbar for category tabs but keep functionality */
+        .no-scrollbar {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        
+        /* Ensure scrollable containers still work */
+        .overflow-x-auto, .overflow-y-auto, .overflow-auto {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar,
+        .overflow-y-auto::-webkit-scrollbar,
+        .overflow-auto::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+        
+        /* Amber Accent Utilities */
+        .text-amber { color: #F59E0B; }
+        .bg-amber { background-color: #F59E0B; }
+        .border-amber { border-color: #F59E0B; }
+        .hover\:bg-amber:hover { background-color: #F59E0B; }
+        
+        /* Thumbnail Hover Effect */
+        .video-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .video-card:hover {
+            transform: translateY(-4px);
+        }
+        .video-card:hover .play-overlay {
+            opacity: 1;
+        }
+        
+        /* Loading Animation */
+        @keyframes pulse-amber {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-amber {
+            animation: pulse-amber 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        /* Quick Exit Button Animation */
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .quick-exit {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        /* Bottom Nav Safe Area */
+        .pb-safe {
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(26, 26, 27, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* Video Modal */
+        .modal-enter {
+            animation: modalEnter 0.3s ease-out forwards;
+        }
+        @keyframes modalEnter {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Gradient Overlays */
+        .gradient-overlay {
+            background: linear-gradient(to top, rgba(18,18,18,0.95) 0%, transparent 100%);
+        }
+        
+        /* Category Active State */
+        .category-active {
+            background-color: #F59E0B;
+            color: #121212;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="antialiased pb-24">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 glass border-b border-gray-800">
+        <div class="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <span class="text-black font-bold text-xl">H</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">HYDRA<span class="text-amber">TV</span></h1>
+                    <span class="text-xs text-gray-400 font-medium tracking-wider">BETA 2026</span>
+                </div>
+            </div>
+            
+            <button onclick="toggleSearch()" class="p-2 rounded-full hover:bg-gray-800 transition-colors">
+                <i data-lucide="search" class="w-5 h-5 text-gray-300"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Search Bar (Hidden by default) -->
+    <div id="searchBar" class="fixed top-16 left-0 right-0 z-30 glass border-b border-gray-800 transform -translate-y-full transition-transform duration-300">
+        <div class="px-4 py-3 max-w-7xl mx-auto">
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input type="text" placeholder="Cari video viral..." 
+                    class="w-full bg-gray-900 border border-gray-700 rounded-full py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-amber text-white placeholder-gray-500">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pt-20 px-4 max-w-7xl mx-auto">
+        
+        <!-- Category Tabs -->
+        <div class="sticky top-16 z-20 py-4 bg-[#121212]/95 backdrop-blur-sm -mx-4 px-4 mb-2">
+            <div class="flex gap-2 overflow-x-auto no-scrollbar" id="categoryTabs">
+                <button onclick="filterCategory('all')" class="category-btn category-active px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 bg-gray-800 text-gray-300 hover:bg-gray-700">
+                    Semua
+                </button>
+                <button onclick="filterCategory('indo')" class="category-btn px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 bg-gray-800 text-gray-300 hover:bg-gray-700">
+                    Indo
+                </button>
+                <button onclick="filterCategory('barat')" class="category-btn px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 bg-gray-800 text-gray-300 hover:bg-gray-700">
+                    Barat
+                </button>
+                <button onclick="filterCategory('asian')" class="category-btn px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 bg-gray-800 text-gray-300 hover:bg-gray-700">
+                    Asian
+                </button>
+                <button onclick="filterCategory('viral')" class="category-btn px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 bg-gray-800 text-gray-300 hover:bg-gray-700 flex items-center gap-1">
+                    <i data-lucide="flame" class="w-3.5 h-3.5"></i> Viral
+                </button>
+            </div>
+        </div>
+
+        <!-- Video Grid -->
+        <div id="videoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            <!-- Videos will be injected here by JavaScript -->
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden py-8 text-center">
+            <div class="inline-flex items-center gap-2 text-amber animate-pulse-amber">
+                <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>
+                <span class="text-sm font-medium">CONNECTING TO HYDRA...</span>
+            </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="py-8 text-center">
+            <button onclick="loadMore()" id="loadMoreBtn" class="px-8 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber text-white rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 mx-auto group">
+                <span>MUAT LEBIH BANYAK</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 group-hover:translate-y-0.5 transition-transform"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation (Thumb Friendly) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-gray-800 pb-safe">
+        <div class="flex items-center justify-around max-w-md mx-auto px-4 py-3">
+            <button onclick="setActiveNav(this)" class="nav-item active flex flex-col items-center gap-1 text-amber transition-colors">
+                <i data-lucide="home" class="w-6 h-6"></i>
+                <span class="text-[10px] font-medium">Home</span>
+            </button>
+            <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="grid-3x3" class="w-6 h-6"></i>
+                <span class="text-[10px] font-medium">Kategori</span>
+            </button>
+            <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="heart" class="w-6 h-6"></i>
+                <span class="text-[10px] font-medium">Favorit</span>
+            </button>
+            <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="user" class="w-6 h-6"></i>
+                <span class="text-[10px] font-medium">Akun</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Quick Exit Button (Floating - Disguised as Power/Settings for discretion) -->
+    <button onclick="quickExit()" class="quick-exit fixed bottom-24 right-4 z-50 w-12 h-12 bg-red-600 hover:bg-red-700 rounded-full shadow-lg shadow-red-600/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 group" title="Tutup Cepat">
+        <i data-lucide="power" class="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-sm">
+        <div class="relative h-full flex flex-col">
+            <!-- Modal Header -->
+            <div class="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
+                <button onclick="closeVideo()" class="p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-colors backdrop-blur-sm">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                </button>
+                <div class="flex gap-2">
+                    <button class="p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-colors backdrop-blur-sm">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                    </button>
+                    <button class="p-2 rounded-full bg-black/50 hover:bg-black/80 text-white transition-colors backdrop-blur-sm">
+                        <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Video Container -->
+            <div class="flex-1 flex items-center justify-center bg-black">
+                <div class="w-full max-w-4xl aspect-video bg-gray-900 relative group">
+                    <video id="mainVideo" class="w-full h-full object-contain" controls>
+                        <source src="" type="video/mp4">
+                    </video>
+                    
+                    <!-- Custom Play Button Overlay (shown when paused) -->
+                    <div id="customPlayOverlay" class="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer" onclick="togglePlay()">
+                        <div class="w-20 h-20 bg-amber rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 transform transition-transform hover:scale-110">
+                            <i data-lucide="play" class="w-8 h-8 text-black fill-current ml-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Info -->
+            <div class="bg-[#1A1A1B] border-t border-gray-800 p-4 max-h-48 overflow-y-auto">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1">
+                        <h2 id="videoTitle" class="text-lg font-bold text-white mb-1 line-clamp-2">Video Title</h2>
+                        <div class="flex items-center gap-3 text-sm text-gray-400">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                <span id="videoViews">125K views</span>
+                            </span>
+                            <span>•</span>
+                            <span id="videoTime">2 jam yang lalu</span>
+                        </div>
+                    </div>
+                    <button class="p-2 rounded-full bg-gray-800 hover:bg-gray-700 text-amber transition-colors">
+                        <i data-lucide="download" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <!-- Tags -->
+                <div class="flex gap-2 mt-3 overflow-x-auto no-scrollbar">
+                    <span class="px-3 py-1 bg-gray-800 rounded-full text-xs text-gray-300 whitespace-nowrap">#Viral</span>
+                    <span class="px-3 py-1 bg-gray-800 rounded-full text-xs text-gray-300 whitespace-nowrap">#Trending</span>
+                    <span class="px-3 py-1 bg-gray-800 rounded-full text-xs text-gray-300 whitespace-nowrap">#2026</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
