@@ -1,0 +1,205 @@
+/* Additional Custom Styles */
+
+/* Line Clamp Utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Aspect Ratio Fallback */
+.aspect-video {
+    aspect-ratio: 16 / 9;
+}
+.aspect-\[16\/9\] {
+    aspect-ratio: 16 / 9;
+}
+
+/* Hide All Scrollbars - Global */
+* {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+html {
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ensure scrollable areas still function */
+.overflow-x-auto,
+.overflow-y-auto,
+.overflow-auto {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Selection Color */
+::selection {
+    background-color: rgba(245, 158, 11, 0.3);
+    color: #ffffff;
+}
+
+/* Focus Visible */
+*:focus-visible {
+    outline: 2px solid #F59E0B;
+    outline-offset: 2px;
+}
+
+/* Video Card Image Loading */
+.video-card img {
+    background: linear-gradient(110deg, #1a1a1a 8%, #2a2a2a 18%, #1a1a1a 33%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+}
+
+.video-card img[src] {
+    animation: none;
+    background: transparent;
+}
+
+@keyframes shimmer {
+    to {
+        background-position-x: -200%;
+    }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+    .video-card:hover {
+        transform: none;
+    }
+    
+    /* Prevent text selection on rapid taps */
+    .video-card, button, nav {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}
+
+/* Safe Area Support for Notch Devices */
+@supports (padding-top: env(safe-area-inset-top)) {
+    header {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print Styles (Hide video content when printing) */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    #videoModal, nav, .quick-exit, header {
+        display: none !important;
+    }
+    
+    main {
+        padding-top: 0;
+    }
+}
+
+/* Custom Range Slider for Video (if needed) */
+input[type="range"] {
+    -webkit-appearance: none;
+    background: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #F59E0B;
+    cursor: pointer;
+    margin-top: -6px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: #374151;
+    border-radius: 2px;
+}
+
+/* Toast Notification for Actions */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(26, 26, 27, 0.95);
+    border: 1px solid #374151;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 9999px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Pulse Animation for Live/Very New Content */
+.pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #F59E0B;
+    animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
+}
